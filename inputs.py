@@ -52,9 +52,6 @@ class TVs(object):
             self.name = "_All"
 
         else:
-
-
-
             s = F"use (1) n-bit counter or (2) choose from following 8-bit LFSR config?\n"
             input_choice = int(input(s + ">"))
             while input_choice != 1 and input_choice != 2:

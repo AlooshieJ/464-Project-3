@@ -761,16 +761,16 @@ class Circuit(object):
         FAULTS = FFA(self.Bench_name)
         FAULTS.gate_faults()
         my_multi = FAULTS.generate_multi_faults()
-        print("TOTAL Combination of multi fault: ",len(my_multi))
-        #print(my_multi)
+
         self.Full_Fault_List = FAULTS.FFLIST
 
         print("--- Derived Full fault list: ---")
         FAULTS.display_faults()
-        input_index = 0
-        fault_index = 0
 
-        #   INIT TEST VECTORS
+        print("TOTAL Combination of multi fault: ", len(my_multi))
+        print(my_multi)
+
+        #   INIT TEST VECTORS LIST
         TESTVECTOR = TVs(len(self.Input_names))
         TESTVECTOR.generate()
 
@@ -778,29 +778,36 @@ class Circuit(object):
 
         print(f"Test Vector has {len(self.input_TV_list)} tvs:")
         #print(self.input_TV_list)
-
-
         self.input_name = TESTVECTOR.how_generated
         print("-----------------------------------------------")
         totDetected = 0
+        tv_detected_count_list = []
+        pause_index = int(input("how many iterations to stop at\n>"))
 
 
 # ------------------------ BEGIN Simulation --------------------------------------------------------------------------
-
+        #self.print_iteration = True
         #
         # run coverage results
         #print("Coverage Results")
         #self.Fault_coverage()
         # adding Fa,b,c-1,
-        iteration_counter = 1
+        tv_counter = 0
+        fault_ran = 0
+
+        tv_used = []
         got_time = True
         for tv in self.input_TV_list:
             self.Node_list = copy.deepcopy(self.MAIN_node_list[:])
-            self.Fault_Node_list = []
-            input_multi_fault_list = []
-
+            #self.Fault_Node_list = []
+            #input_multi_fault_list = []
+            tv_used.append(tv)
+            tv_detected_count = 0
+            if tv_counter > 0  and tv not in tv_used:
+                print("repeated TV , skipping simulation ")
+                continue
             #assign the input for iteration
-            self.user_TV =  tv #self.input_TV_list[input_index]
+            self.user_TV =  tv
             s_index = 0
             for node in self.Node_list:
                 if node.is_input:
@@ -808,19 +815,17 @@ class Circuit(object):
                         break
                     node.set_value(self.user_TV[s_index])
                     s_index += 1
-            print("iteration #",iteration_counter)
-            print("Running multi -fault with input:", end=" ")
+            print("iteration #",tv_counter)
+            print("Running multi-fault Sim. with input:", end=" ")
             print(self.user_TV)
+
+            #print("------------- Without Fault -----------------------")
+            self.simulate_nodes(self.Node_list)
+            #self.print_results_nodes(self.Node_list)
             # self.Fault_Node_list = copy.deepcopy(self.Node_list[:])
 
             # create the multi fault 2d array
-            # my_faults = [["a-1", "b-1", "c-1"], ["k-1", "h-c-1", "k-h-1"]]
-            #count = 0
-            #for fault_list in self.detected[tv]:
-                #print(fault_list)
-                #my_faults.append(fault_list)# = fault_list
-                #count += 1
-
+            # my_multi = [["a-1", "b-1", "c-1"], ["k-1", "h-c-1", "k-h-1"]]
             if got_time:
                 got_time = False
                 start = time.time()
@@ -831,19 +836,27 @@ class Circuit(object):
             # for multi_fault_list in my_faults:
             #print("and faults: ",my_multi)
 
+
             for multi_fault_list in my_multi:
+                #print("------------- With Fault -----------------------")
+                #print(multi_fault_list)
+
                 # RESET PER iteration of TV
                 #print(f"Running simulation with the following faults")
-                #print(multi_fault_list)
-                for node in self.Node_list:
-                    if not node.is_input:
-                        node.set_value("U")
 
+
+                # clone it
+                self.Fault_Node_list = copy.deepcopy(self.Node_list[:])
+
+                # multi fault list is a list of strings that are faults.
+                # add all the faults in this list and now we have a multi fault
+                #
                 for fault in multi_fault_list:
+
                     # print(fault)
                     # re poplulate the fault list
-                    self.Fault_Node_list = copy.deepcopy(self.Node_list[:])
                     self.Fault_input_list =self.parse_fault(fault)
+
                     f_val = ''
                     if self.Fault_TYPE == 1:
                         if self.Fault_input_list[1] == 1 or self.Fault_input_list[1] == "1":
@@ -858,31 +871,56 @@ class Circuit(object):
                         print("NOT VALID FAULT, exiting simulation")
                         continue #exit(1)
 
-                    #self.print_iteration =  True
-                    #print("------------- Without Fault -----------------------")
-                    self.simulate_nodes(self.Node_list)
-                    #self.print_results_nodes(self.Node_list)
-                    #print("------------- With Fault -----------------------")
-                    self.simulate_nodes(self.Fault_Node_list)
-                    #self.print_results_nodes(self.Fault_Node_list)
-                    if(self.Detect_mulit_fault(self.Node_list,self.Fault_Node_list)):
-                        totDetected += 1
-                    self.Fault_Node_list = []
+                # simulate the node list with all the fauly nodes
+                self.simulate_nodes(self.Fault_Node_list)
+                #self.print_results_nodes(self.Fault_Node_list)
 
+                if(self.Detect_mulit_fault(self.Node_list,self.Fault_Node_list)):
+                    totDetected += 1
+                    tv_detected_count += 1
+                self.Fault_Node_list = []
+                fault_ran += 1
             #after 1 TV iteration
+            tv_detected_count_list.append(tv_detected_count)
+
+
+            #output iteration progress
+            if tv_counter % pause_index  == 0 and tv_counter != 0:
+                s =f"----------- Results so far -----------\n"\
+                   f"total Detected Faults {totDetected}    \n"\
+                   f"total faults ran      : {fault_ran} \n" \
+                   f"Inputs Ran so far     : {tv_counter}\n {tv_used}\n" \
+                   f"detected per iteration: {tv_detected_count_list}"
+
+                print(s)
+
+                input("next TVs")
+
             end = time.time()
             got_time = True
             time_took = int(end-start) / 60
             print(f"All Faults took {time_took}m")
-            iteration_counter += 1
 
+            for node in self.Node_list:
+                if not node.is_input:
+                    node.set_value("U")
 
-        print(f"Total Detected {totDetected} out of {(len(self.input_TV_list)*len(my_multi))} ({len(self.input_TV_list)} TVs * {len(my_multi)} Fault combinations ) ")
+            tv_counter += 1
+
+        # end simulation
+        print(f"Total Detected {totDetected} out of {(len(self.input_TV_list)*len(my_multi))}"
+              f" ({len(self.input_TV_list)} TVs * {len(my_multi)} Fault combinations ) ")
         print(totDetected/(len(self.input_TV_list)*len(my_multi)) * 100 ,"% covered")
            # input('next')
+        s = f"----------- Final Results -----------\n" \
+            f"total Detected Faults {totDetected}    \n" \
+            f"total faults ran      : {fault_ran} \n" \
+            f"Inputs Ran so far     : {tv_counter}\n {tv_used}\n" \
+            f"detected per iteration: {tv_detected_count_list}"
 
+        print(s)
 
-def run(self):
+    def run(self):
 
         # set up circuit bench file
         self.set_bench()
