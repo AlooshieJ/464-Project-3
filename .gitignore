@@ -5,3 +5,5 @@ Fault_results
 graph_data
 BENCH_FAULTS
 BENCH_FAULTS.rar
+*.txt
+__pycache__/

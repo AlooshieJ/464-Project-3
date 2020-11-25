@@ -2,7 +2,7 @@
 
 """
 from re import match  # re = REGULAR EXPRESSION, helps with parser
-
+import copy
 """ NODE class:
 
 name : 'wire' that is the output of the node, 
@@ -185,6 +185,43 @@ class FFA(object):
         for subFault in self.FFA:
             for fault in subFault:
                 self.FFLIST.append(fault)
+
+    # for every fault, make a combination of it wwith every other fault
+    # that is not the same input wire
+    def generate_multi_faults(self):
+        remaining_faults = copy.deepcopy(self.FFLIST)
+        multi_fault_list = []
+        single_multi_fault = []
+        for fault in self.FFLIST:
+            #print(fault,end = " ")
+            raw_fault = fault.split('-')
+            remaining_faults.pop(remaining_faults.index(fault))
+            for sub_fault in remaining_faults:
+                raw_sub_fault = sub_fault.split('-')
+                single_multi_fault = []
+                #print(sub_fault)
+                if fault != sub_fault:
+                    if len(raw_fault) == len(raw_sub_fault):
+                        if raw_fault[0] == raw_sub_fault[0]:
+                            #print("SAME WIRE, DONT DO this")
+                            continue
+                    else:
+                        if raw_fault[0] == raw_sub_fault[1]:
+                            #print("same wire DONT DO ")
+                            continue
+
+                    #if fault[0] == sub_fault[0]:
+                    #    print("The same wire")
+                    #else:
+                    single_multi_fault.append(fault)
+                    single_multi_fault.append(sub_fault)
+
+                    #print(single_multi_fault, end = " ")
+                    multi_fault_list.append(single_multi_fault)
+            #print("")
+
+        #print(multi_fault_list)
+        return multi_fault_list
 
 
     # print Full fault list
