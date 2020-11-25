@@ -1,0 +1,8 @@
+generate first TV
+
+find full fault coverage for that TV
+
+Q)
+
+should we be using 1 TV for a multi fault, or using a multi fault, and find every
+TV that detects it

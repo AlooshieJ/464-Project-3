@@ -37,7 +37,9 @@ class TVs(object):
 
 
     def generate(self):
-        if 2**self.b < 100: # 2^n
+        generationmode= int( input("(1) generate 2^n bits \n(2) choose input type\n>") )
+        if generationmode == 1:
+        #if 2**self.b < 100: # 2^n
             if not self.b:
                 bitNum = int( input("How many bits of length for test vectors? ") ,10)
                 self.b = bitNum
@@ -263,12 +265,12 @@ class LFSR(PRPG):
 
         # s += f"\nTVs: {self.TV}"
         return s
-
-S2 = LFSR("1D",5,[3])
-print(S2)
-S2.generate_TV_list()
-for tv in S2.TV:
-    print(tv)
+#
+# S2 = LFSR("1D",5,[3])
+# print(S2)
+# S2.generate_TV_list()
+# for tv in S2.TV:
+#     print(tv)
 # print(S2.TV)
 
 # if __name__ == '__main__':
