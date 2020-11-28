@@ -28,6 +28,7 @@ class TVs(object):
         self.Seed = "0x123456789abc"
         self.default_seed = "0x123456789abc"
         self.GLOABAL_SEED = "123456789abcdef0"
+        self.GLOABAL_SEED = "AABBAAD3456664453434534A"
         self.how_generated = ""
 
         self.name = ""
