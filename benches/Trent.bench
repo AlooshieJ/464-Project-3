@@ -1,0 +1,36 @@
+# circuit bench
+# 4 inputs
+# 4 outputs
+# 12 gates (6 AND, 2 XOR, 4 BUFF)
+
+INPUT(a)
+INPUT(b)
+INPUT(c)
+INPUT(d)
+
+# and gates
+e = AND(b, d)
+f = AND(b, c)
+g = AND(a, d)
+h = AND(a, c)
+
+# half adder
+# sum
+i = XOR(f, g)
+# carry out
+j = AND(f, g)
+# sum
+k = XOR(h, j)
+# carry out
+l = AND(h, j)
+
+# order bits
+w = BUFF(l)
+x = BUFF(k)
+y = BUFF(i)
+z = BUFF(e)
+
+OUTPUT(w)
+OUTPUT(x)
+OUTPUT(y)
+OUTPUT(z)
