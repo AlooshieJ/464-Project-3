@@ -5,6 +5,7 @@ import time
 from inputs import TVs as TVs
 from FFL import FFA as FFA
 import random
+import numpy as np
 
 import matplotlib.pyplot as plt
 plt.rcParams.update({'figure.autolayout': True})
@@ -690,7 +691,7 @@ class Circuit(object):
                     F.pop(fault)
                    # F.remove(fault)
 
-            print(f"with {len(F)} Remaining Faults:\n{F}")
+            print(f"with {len(F)} Remaining Faults:\n") # {F}")
             print("-------------------------------------")
 
     # all the dictionarys will store (Key,Value) as:
@@ -731,7 +732,8 @@ class Circuit(object):
 
             if counter %10 == 0: # add to a new x value
                 x_axis.append(counter // 10)
-                y_axis.append( length_covered / len(fault_list) * 100 )
+                y_axis.append( length_covered / len(fault_list)   * 100 )
+                length_covered = 0
 
             length_covered += len(v)
             counter+= 1
@@ -1051,15 +1053,20 @@ class Circuit(object):
             print(f" tvs:{x_axis[i]} detected:{y_axis[i]}")
 
         print("--------------- Coverage Results ---------------")
+        outFile.write("--------------- Coverage Results ---------------\n")
         self.Fault_coverage(my_multi,self.multi_detected)
         # for k,v in self.coverage:
         #     print(k,v)
         print(self.coverage)
         nx,ny = self.generate_plot_data(my_multi)
+        outFile.write(f"TVs     coverage%\n")
         for i in range(len(nx)):
             print(nx[i],ny[i])
+            outFile.write(f"{nx[i]} {ny[i]}"+"\n")
         #print(nx,ny)
         plt.tight_layout()
+        plt.ylim(0,100)
+        plt.xlim(1,10)
         plt.plot(nx, ny)
         plt.xlabel('tv batch # (each is 10 tvs)')
         plt.ylabel('Fault coverage %')
@@ -1067,7 +1074,7 @@ class Circuit(object):
             f"circuit:  {f}\n"\
             f"with seed: {TESTVECTOR.Seed}"
         plt.title(s)
-        plt.show()
+        # plt.show()
         plt.savefig(f+'.png')
     def run(self):
 
