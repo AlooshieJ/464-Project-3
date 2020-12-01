@@ -28,6 +28,7 @@ class TVs(object):
         self.Seed = "0x123456789abc"
         self.default_seed = "0x123456789abc"
         self.GLOABAL_SEED = "123456789abcdef0"
+        self.GLOABAL_SEED = "AABBAAD3456664453434534A"
         self.how_generated = ""
 
         self.name = ""
@@ -52,9 +53,6 @@ class TVs(object):
             self.name = "_All"
 
         else:
-
-
-
             s = F"use (1) n-bit counter or (2) choose from following 8-bit LFSR config?\n"
             input_choice = int(input(s + ">"))
             while input_choice != 1 and input_choice != 2:
