@@ -1043,6 +1043,7 @@ class Circuit(object):
         outFile = open("graph_data/"+f,"w")
         outFile.write(f"TV generation method : {TESTVECTOR.how_generated}"+"\n")
         outFile.write(f"seed: {TESTVECTOR.Seed}"+"\n")
+        outFile.write(f"All combinations to use: {len(all_multi)}")
         outFile.write(f"Possible faults to use : {len(my_multi)} "+"\n")
         outFile.write(f"Faults tested  : {len(self.input_TV_list) * len(my_multi)}"+"\n")
         outFile.write(f"TV used        : {len(self.input_TV_list)}"+"\n")
@@ -1076,6 +1077,9 @@ class Circuit(object):
         plt.title(s)
         # plt.show()
         plt.savefig(f+'.png')
+
+
+
     def run(self):
 
         # set up circuit bench file
